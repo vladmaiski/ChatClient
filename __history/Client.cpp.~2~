@@ -3,25 +3,29 @@
 #include <vcl.h>
 #pragma hdrstop
 #include <tchar.h>
-#include "LogInForm.h"
-#include "RegForm.h"
 
 //---------------------------------------------------------------------------
 USEFORM("MainForm.cpp", Form1);
-//USEFORM("LogInForm.cpp", Form2);
+USEFORM("LogInForm.cpp", Form2);
 USEFORM("RegForm.cpp", Form3);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	try
 	{
-		Application->CreateForm(__classid(TForm1), &Form1);
-		Application->CreateForm(__classid(TForm3), &Form3);
 		if(TForm2::Execute())
 		{
 			Application->Initialize();
 			Application->MainFormOnTaskBar = true;
-			Application->Run();
+			Application->CreateForm(__classid(TForm1), &Form1);
+		Application->Run();
+		}
+        else
+		{
+            Application->MessageBox(
+                _T("¬ы не можете пользоватьс€ приложением, так как не прошли авторизацию"),
+                _T("«ащита приложени€")
+            );
 		}
 	}
 	catch (Exception &exception)

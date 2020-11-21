@@ -1,10 +1,9 @@
 object Form3: TForm3
   Left = 0
   Top = 0
-  BorderStyle = bsSingle
   Caption = 'Registration'
-  ClientHeight = 252
-  ClientWidth = 482
+  ClientHeight = 242
+  ClientWidth = 472
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

@@ -1,9 +1,10 @@
 object Form2: TForm2
   Left = 0
   Top = 0
+  BorderStyle = bsSingle
   Caption = 'Sign up'
-  ClientHeight = 265
-  ClientWidth = 483
+  ClientHeight = 275
+  ClientWidth = 493
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -11,7 +12,6 @@ object Form2: TForm2
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -31,7 +31,7 @@ object Form2: TForm2
   object Label3: TLabel
     Left = 328
     Top = 112
-    Width = 34
+    Width = 26
     Height = 13
     Caption = 'Show'
     OnMouseMove = Label3MouseMove
@@ -60,5 +60,14 @@ object Form2: TForm2
     Caption = 'Log In'
     TabOrder = 2
     OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 434
+    Top = 8
+    Width = 41
+    Height = 25
+    Caption = 'Sign in'
+    TabOrder = 3
+    OnClick = Button2Click
   end
 end

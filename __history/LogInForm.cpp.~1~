@@ -29,27 +29,20 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 		ModalResult = mrOk;
 	}
     else
-	{
-		Application->MessageBox(L"Incorrect Password", L"Error");
+    {
+		ModalResult = mrCancel;
 	}
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm2::Label3MouseMove(TObject *Sender, TShiftState Shift, int X,
           int Y)
 {
-	Edit2 ->PasswordChar = 0;
+	Edit2->PasswordChar = '*';
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm2::Label3MouseLeave(TObject *Sender)
 {
-	Edit2->PasswordChar = '*';
+	Edit2 ->PasswordChar = 0;
 }
 //---------------------------------------------------------------------------
-
-void __fastcall TForm2::Button2Click(TObject *Sender)
-{
-//	Form3 -> Show();
-    Hide();
-}
 //---------------------------------------------------------------------------
-

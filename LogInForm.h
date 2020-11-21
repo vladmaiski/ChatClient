@@ -17,10 +17,11 @@ __published:	// IDE-managed Components
 	TEdit *Edit2;
 	TButton *Button1;
 	TLabel *Label3;
+	TButton *Button2;
 	void __fastcall Button1Click(TObject *Sender);
 	void __fastcall Label3MouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
 	void __fastcall Label3MouseLeave(TObject *Sender);
-	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall Button2Click(TObject *Sender);
 
 private:	// User declarations
 public:		// User declarations

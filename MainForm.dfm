@@ -1,9 +1,10 @@
 object Form1: TForm1
   Left = 0
   Top = 0
+  BorderStyle = bsSingle
   Caption = 'ChitChat'
-  ClientHeight = 362
-  ClientWidth = 585
+  ClientHeight = 372
+  ClientWidth = 595
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

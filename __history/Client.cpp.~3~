@@ -4,7 +4,6 @@
 #pragma hdrstop
 #include <tchar.h>
 #include "LogInForm.h"
-#include "RegForm.h"
 
 //---------------------------------------------------------------------------
 USEFORM("MainForm.cpp", Form1);
@@ -15,12 +14,12 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	try
 	{
-		Application->CreateForm(__classid(TForm1), &Form1);
 		Application->CreateForm(__classid(TForm3), &Form3);
 		if(TForm2::Execute())
 		{
 			Application->Initialize();
 			Application->MainFormOnTaskBar = true;
+			Application->CreateForm(__classid(TForm1), &Form1);
 			Application->Run();
 		}
 	}
