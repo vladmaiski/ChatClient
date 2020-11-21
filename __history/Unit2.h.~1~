@@ -1,0 +1,15 @@
+#ifndef ClientHandlerH
+#define ClientHandlerH
+
+class ClientHandler
+{
+private:
+	static void serverListener();
+public:
+	static SOCKET connection;
+	static void createListenerThread();
+	static void sendToAllMessage(std::string clientBuffer);
+	static bool connect();
+};
+
+#endif

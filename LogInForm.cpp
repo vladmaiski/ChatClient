@@ -3,7 +3,6 @@
 #include <vcl.h>
 #pragma hdrstop
 #include <RegForm.h>
-
 #include "LogInForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)

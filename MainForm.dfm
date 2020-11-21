@@ -14,18 +14,4 @@ object Form1: TForm1
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
-    Left = 80
-    Top = 64
-    Width = 27
-    Height = 13
-    Caption = 'Name'
-  end
-  object Label2: TLabel
-    Left = 80
-    Top = 112
-    Width = 46
-    Height = 13
-    Caption = 'Password'
-  end
 end
