@@ -2,8 +2,11 @@
 
 #include <vcl.h>
 #pragma hdrstop
-#include <RegForm.h>
+
+#include "RegForm.h"
 #include "LogInForm.h"
+#include "MainForm.h"
+
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -29,9 +32,16 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 		ShowMessage("Incorrect input.");
 		return;
 	}
-	if (Edit1->Text == "1" && Edit2->Text == "1")
-    {
-		ModalResult = mrOk;
+	if (Edit2->Text == "1")
+	{
+		if(connectToServer("127.0.0.1"))
+		{
+			String name = Edit1->Text;
+			userName = sysStrToStd(name);
+			sendMsg(REG_PCKT, userName);
+			greetUser(name);
+			ModalResult = mrOk;
+		}
 	}
 	else
     {
@@ -56,4 +66,11 @@ void __fastcall TForm2::Button2Click(TObject *Sender)
 {
 	Form3->ShowModal();
 }
+
+
+void __fastcall TForm2::FormCreate(TObject *Sender)
+{
+	Edit2 ->PasswordChar = '*';
+}
+//---------------------------------------------------------------------------
 

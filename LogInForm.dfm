@@ -12,6 +12,7 @@ object Form2: TForm2
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -50,7 +51,6 @@ object Form2: TForm2
     Width = 121
     Height = 21
     TabOrder = 1
-    TextHint = 'Enter your login'
   end
   object Button1: TButton
     Left = 168

@@ -7,6 +7,7 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
+
 //---------------------------------------------------------------------------
 class TForm2 : public TForm
 {
@@ -22,6 +23,7 @@ __published:	// IDE-managed Components
 	void __fastcall Label3MouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
 	void __fastcall Label3MouseLeave(TObject *Sender);
 	void __fastcall Button2Click(TObject *Sender);
+	void __fastcall FormCreate(TObject *Sender);
 
 private:	// User declarations
 public:		// User declarations
