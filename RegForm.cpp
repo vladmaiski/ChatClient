@@ -3,6 +3,7 @@
 #include <vcl.h>
 #pragma hdrstop
 
+#include "MainForm.h"
 #include "RegForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -13,4 +14,41 @@ __fastcall TForm3::TForm3(TComponent* Owner)
 	: TForm(Owner)
 {
 }
+
 //---------------------------------------------------------------------------
+
+
+void __fastcall TForm3::Button1Click(TObject *Sender)
+{   if(checkUserInput(sysStrToStd(NicknameField->Text), NICKNAME_LENGTH))
+	{
+		if(checkUserInput(sysStrToStd(PasswordField->Text), PASSWORD_LENGTH))
+		{
+			std::string res = sysStrToStd(NicknameField->Text) + ":" + sysStrToStd(PasswordField->Text);
+			sendMsg(REG_PCKT, res);
+			char* packetType = (char*)calloc(PACKET_TYPE_LENGHT, sizeof(char));
+			recv(serverSock, packetType, 5, NULL);
+			std::string packet(packetType);
+			if(!packet.compare(USER_REGISTRED_PCKT))
+			{
+				ShowMessage("You register your account!)");
+				Form3->Hide();
+			} else
+			{
+				ShowMessage("Account with such name already exist");
+			}
+		} else
+		{
+			ShowMessage("Incorrect password(no more than " + AnsiString(PASSWORD_LENGTH) + " characters).");
+			return;
+		}
+	} else
+	{
+		ShowMessage("Incorrect nickname(no more than " + AnsiString(NICKNAME_LENGTH) + " characters)");
+		return;
+	}
+
+
+}
+//---------------------------------------------------------------------------
+
+

@@ -19,33 +19,45 @@ __fastcall TForm2::TForm2(TComponent* Owner)
 //---------------------------------------------------------------------------
 bool __fastcall TForm2::Execute()
 {
-	TForm2 *frm = new TForm2(0);
-	int res = frm->ShowModal();
-	delete frm;
-	return res == mrOk;
+	if(connectToServer())
+	{
+		TForm2 *frm = new TForm2(0);
+		int res = frm->ShowModal();
+		delete frm;
+		return res == mrOk;
+	} else
+	{
+		Application->MessageBox(_T("Server unavailable"), _T("Application error"));
+		exit(3);
+	}
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm2::Button1Click(TObject *Sender)
 {
-	if(Edit1->Text == "" || Edit2->Text == "")
+	if(!checkUserInput(sysStrToStd(Edit1->Text),
+	 PASS_NICKNAME_LENGTH) && !checkUserInput(sysStrToStd(Edit2->Text), PASS_NICKNAME_LENGTH))
 	{
 		ShowMessage("Incorrect input.");
 		return;
 	}
-	if (Edit2->Text == "1")
+	std::string toSend = sysStrToStd(Edit1->Text) + ":" + sysStrToStd(Edit2->Text);
+	sendMsg(LOG_PCKT, toSend.c_str());
+	char* msg = (char*)calloc(PACKET_TYPE_LENGHT + 1, sizeof(char));
+	recv(serverSock, msg, PACKET_TYPE_LENGHT, NULL);
+	std::string packetType(msg);
+	if (true)//!packetType.compare(LOGGED_PCKT))
 	{
-		if(connectToServer("127.0.0.1"))
-		{
-			String name = Edit1->Text;
-			userName = sysStrToStd(name);
-			sendMsg(REG_PCKT, userName);
-			greetUser(name);
-			ModalResult = mrOk;
-		}
+		String name = Edit1->Text;
+		userName = sysStrToStd(name);
+
+		createHandlerThreat();
+		greetUser(name);
+		ModalResult = mrOk;
 	}
-	else
+	else if(!packetType.compare(NOT_LOGGED_PCKT))
     {
-		Application->MessageBox(_T("Application error"), _T("Incorrect login or password"));
+		Application->MessageBox(_T("Incorrect login or password"), _T("Application error"));
 	}
 }
 //---------------------------------------------------------------------------
@@ -71,6 +83,12 @@ void __fastcall TForm2::Button2Click(TObject *Sender)
 void __fastcall TForm2::FormCreate(TObject *Sender)
 {
 	Edit2 ->PasswordChar = '*';
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
+{
+	//disconnect();
 }
 //---------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-﻿//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #pragma hdrstop
@@ -28,10 +28,43 @@ DWORD WINAPI clientHandler(LPVOID lpParam)
 		int length = std::stoi(msgLen);
 		msg = (char *) calloc(length + 1, sizeof(char));
 		recv(serverSock, msg, length, NULL);
-		printMsg(std::string(msg));
+		packetHandle(msg);
 		free(msg);
 	}
 	return 0;
+}
+
+void packetHandle(char* _msg)
+{
+	std::string packet(_msg);
+	std::string packetType = packet.substr(0, PACKET_TYPE_LENGHT);
+	int msgLen = packet.length() - PACKET_TYPE_LENGHT;
+	std::string msg = packet.substr(PACKET_TYPE_LENGHT, msgLen);
+
+	if (!packetType.compare(MSG_PCKT))
+		printMsg(std::string(msg), true);
+	if(!packetType.compare(USER_INFO_PCKT))
+	{
+		std::vector<std::string> users;
+		std::string currentUserName;
+		for(int i = 0; i < msg.size(); i++)
+		{
+			if(msg[i] == ':')
+			{
+				users.push_back(currentUserName);
+				Form1->ListBox1->Items->Add(currentUserName.c_str());
+				currentUserName = "";
+			}
+			currentUserName += msg[i];
+		}
+
+	}
+}
+
+void createHandlerThreat()
+{
+	DWORD dwThreadId;
+	HANDLE hThread = CreateThread(NULL, NULL, clientHandler, NULL, NULL, &dwThreadId);
 }
 
 std::string getTimeStr()
@@ -39,18 +72,24 @@ std::string getTimeStr()
 	time_t currentTime;
 	struct tm *localTime;
 
-	time( &currentTime );                   // Get the current time
-	localTime = localtime( &currentTime );  // Convert the current time to the local time
+	time( &currentTime );
+	localTime = localtime( &currentTime );
 
-	int hour   = localTime->tm_hour;
-	int min    = localTime->tm_min;
-	int sec    = localTime->tm_sec;
+	std::string hour   = std::to_string(localTime->tm_hour);
+	std::string min    = std::to_string(localTime->tm_min);
+	std::string sec    = std::to_string(localTime->tm_sec);
 
-	return ("[" + std::to_string(hour) + ":" + std::to_string(min) + ":"
-		+ std::to_string(sec) + "]");
+	if(sec.size() == 1)
+	{
+		sec = "0" + sec;
+	}
+
+
+	return ("[" + hour + ":" + min + ":"
+		+ sec + "]");
 }
 
-bool connectToServer(const char *adress)
+bool connectToServer()
 {
 	WSADATA wsaData;
     WORD DLLVersion = MAKEWORD(2, 1);
@@ -67,9 +106,6 @@ bool connectToServer(const char *adress)
 	serverSock = socket(AF_INET, SOCK_STREAM, NULL);
 	if (connect(serverSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) != 0) {
 		return false;
-	} else {
-		DWORD dwThreadId;
-		HANDLE hThread = CreateThread(NULL, NULL, clientHandler, NULL, NULL, &dwThreadId);
 	}
 	return true;
 }
@@ -91,6 +127,26 @@ void sendPacket(SOCKET server, std::string packet)
 	send(server, packet.c_str(), packet.length(), NULL);
 }
 
+bool checkInputSize(std::string input, int size)
+{
+	if(input == "" || input.length() > size)
+		return false;
+	return true;
+}
+
+bool checkUserInput(std::string input, int size)
+{
+	if(!checkInputSize(input, size))
+		return false;
+
+	for (const char c : input) {
+		if (!isalpha(c) && !isdigit(c))
+			return false;
+	}
+
+	return true;
+}
+
 std::string makePacket(const char *packetType, std::string msg)
 {
 	msg = packetType + msg;
@@ -99,15 +155,8 @@ std::string makePacket(const char *packetType, std::string msg)
 
 void sendMsg(const char *packetType, std::string msg)
 {
-	if(msg.length() > 100)
-	{
-		//TODO Error
-	}else
-	{
 		std::string packet = makePacket(packetType, msg);
 		sendPacket(serverSock, packet);
-		Sleep(10);
-	}
 }
 
 void disconnect()
@@ -115,22 +164,35 @@ void disconnect()
 	sendMsg(DISCONNECT_PCKT, std::string(""));
 }
 
-void printMsg(std::string msg)
+void printMsg(std::string msg, bool flag)
 {
-	//Form1->ChatBox->Lines->Add();
-	Form1->ChatBox->Text += ("\r\n" + getTimeStr() + " " +  msg).c_str();
+	std::string user = "(you)";
+	if (flag) {
+		user = "";
+	}
+	Form1->ChatBox->Text += ("\r\n" + getTimeStr() + user + " " +  msg).c_str();
 }
-//---------------------------------------------------------------------------
+
+bool checkMsg(std::string msg, int size)
+{
+	if(msg == "" || msg.length() > size)
+		return false;
+	return true;
+}
 
 void __fastcall TForm1::Button1Click(TObject *Sender)
 {
 	String msg = MsgBox->Text.Trim();
-	if(msg != "")
+	std::string stdMsg = sysStrToStd(msg);
+	const int MAX_SIZE = 1000;
+	if(checkMsg(stdMsg, MAX_SIZE))
 	{
-		std::string stdMsg = sysStrToStd(msg);
 		sendMsg(MSG_PCKT, stdMsg);
-		printMsg(std::string(stdMsg));
+		printMsg(std::string(stdMsg), false);
 		MsgBox->Clear();
+	} else
+	{
+		ShowMessage("Your message is too long(no more than " + AnsiString(MAX_SIZE) + " characters)");
 	}
 }
 //---------------------------------------------------------------------------
@@ -151,7 +213,40 @@ void greetUser(String name)
 
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	disconnect();
+	if(serverSock != NULL)
+		disconnect();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MsgBoxKeyPress(TObject *Sender, System::WideChar &Key)
+{
+	if(Key == VK_RETURN)
+	{
+		Key = 0;
+		Form1->Button1Click(Sender);
+	}
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm1::MsgBoxChange(TObject *Sender)
+{
+	std::string msg = sysStrToStd(MsgBox->Text);
+
+	if(msg.size() > MAX_USER_INPUT_SIZE)
+	{
+		MsgBox->Text = msg.substr(0, MAX_USER_INPUT_SIZE).c_str();
+		MsgBox->SelStart = MsgBox->Text.Length();
+		MsgBox->Perform(EM_SCROLLCARET, 0, 0);
+	}
+
+	if(msg.size() > MAX_MESSAGE_SIZE)
+		Label1->Font->Color = clRed;
+	else
+		Label1->Font->Color = clWhite;
+
+	Label1->Caption = AnsiString(msg.size()) + "/" +  AnsiString(MAX_MESSAGE_SIZE);
 }
 //---------------------------------------------------------------------------
 

@@ -9,6 +9,9 @@
 #include <Vcl.Forms.hpp>
 
 //---------------------------------------------------------------------------
+
+const int PASS_NICKNAME_LENGTH = 30;
+
 class TForm2 : public TForm
 {
 __published:	// IDE-managed Components
@@ -24,6 +27,7 @@ __published:	// IDE-managed Components
 	void __fastcall Label3MouseLeave(TObject *Sender);
 	void __fastcall Button2Click(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 
 private:	// User declarations
 public:		// User declarations
