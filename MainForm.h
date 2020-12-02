@@ -32,10 +32,13 @@ const char* USER_NOT_REGISTRED_PCKT = "/555/";
 const char* NOT_LOGGED_PCKT = "/666/";
 const char* LOGGED_PCKT = "/777/";
 const char* USER_INFO_PCKT = "/888/";
+const char* PRIVATE_MSG = "/999/";
 
 SOCKET serverSock = NULL;
 
 std::string userName;
+
+std::vector<std::string> usersOnline;
 
 void printMsg(std::string msg);
 void printMsg(std::string msg);
@@ -53,6 +56,7 @@ bool checkInputSize(std::string input, int size);
 bool checkUserInput(std::string input, int size);
 void createHandlerThreat();
 void packetHandle(char* _msg);
+void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName);
 
 
 class TForm1 : public TForm
@@ -63,11 +67,13 @@ __published:	// IDE-managed Components
 	TMemo *ChatBox;
 	TLabel *Label1;
 	TListBox *ListBox1;
+	TLabel *Label2;
 	void __fastcall Button1Click(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall MsgBoxKeyPress(TObject *Sender, System::WideChar &Key);
 	void __fastcall MsgBoxChange(TObject *Sender);
+	void __fastcall FormShow(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

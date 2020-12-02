@@ -1,6 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'ChitChat'
   ClientHeight = 330
@@ -14,6 +15,7 @@ object Form1: TForm1
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -22,9 +24,9 @@ object Form1: TForm1
     Width = 34
     Height = 13
     Caption = '0/1000'
-    Color = clBackground
+    Color = clWhite
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clNone
+    Font.Color = clWhite
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []
@@ -32,6 +34,13 @@ object Form1: TForm1
     ParentFont = False
     Transparent = True
     StyleElements = []
+  end
+  object Label2: TLabel
+    Left = 424
+    Top = 5
+    Width = 64
+    Height = 13
+    Caption = 'Users Online:'
   end
   object Button1: TButton
     Left = 327

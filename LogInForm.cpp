@@ -15,21 +15,6 @@ TForm2 *Form2;
 __fastcall TForm2::TForm2(TComponent* Owner)
 	: TForm(Owner)
 {
-}
-//---------------------------------------------------------------------------
-bool __fastcall TForm2::Execute()
-{
-	if(connectToServer())
-	{
-		TForm2 *frm = new TForm2(0);
-		int res = frm->ShowModal();
-		delete frm;
-		return res == mrOk;
-	} else
-	{
-		Application->MessageBox(_T("Server unavailable"), _T("Application error"));
-		exit(3);
-	}
 
 }
 //---------------------------------------------------------------------------
@@ -41,19 +26,25 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 		ShowMessage("Incorrect input.");
 		return;
 	}
+
 	std::string toSend = sysStrToStd(Edit1->Text) + ":" + sysStrToStd(Edit2->Text);
 	sendMsg(LOG_PCKT, toSend.c_str());
+
 	char* msg = (char*)calloc(PACKET_TYPE_LENGHT + 1, sizeof(char));
 	recv(serverSock, msg, PACKET_TYPE_LENGHT, NULL);
 	std::string packetType(msg);
+
 	if (true)//!packetType.compare(LOGGED_PCKT))
 	{
+
+		Form1 -> Enabled = true;
+		Form2 -> Hide();
+
 		String name = Edit1->Text;
 		userName = sysStrToStd(name);
 
-		createHandlerThreat();
 		greetUser(name);
-		ModalResult = mrOk;
+		createHandlerThreat();
 	}
 	else if(!packetType.compare(NOT_LOGGED_PCKT))
     {
@@ -61,8 +52,9 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 	}
 }
 //---------------------------------------------------------------------------
+
 void __fastcall TForm2::Label3MouseMove(TObject *Sender, TShiftState Shift, int X,
-          int Y)
+		  int Y)
 {
 	Edit2->PasswordChar = 0;
 }
@@ -88,7 +80,15 @@ void __fastcall TForm2::FormCreate(TObject *Sender)
 
 void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	//disconnect();
+	//Form1->Close();
+}
+void __fastcall TForm2::EnterKeyPress(TObject *Sender, System::WideChar &Key)
+{
+	if(Key == VK_RETURN)
+	{
+		Key = 0;
+		Form2->Button1Click(Sender);
+	}
 }
 //---------------------------------------------------------------------------
 

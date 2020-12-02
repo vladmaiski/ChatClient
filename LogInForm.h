@@ -28,6 +28,7 @@ __published:	// IDE-managed Components
 	void __fastcall Button2Click(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+	void __fastcall EnterKeyPress(TObject *Sender, System::WideChar &Key);
 
 private:	// User declarations
 public:		// User declarations

@@ -4,6 +4,7 @@
 #pragma hdrstop
 
 #include "MainForm.h"
+#include "LogInForm.h"
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -34,6 +35,16 @@ DWORD WINAPI clientHandler(LPVOID lpParam)
 	return 0;
 }
 
+void showUserList()
+{
+	Form1->ListBox1->Items->Clear();
+	Form1->ListBox1->Items->Add("Users Online:");
+	for(std::string userName: usersOnline)
+	{
+		Form1->ListBox1->Items->Add(userName.c_str());
+	}
+}
+
 void packetHandle(char* _msg)
 {
 	std::string packet(_msg);
@@ -43,21 +54,28 @@ void packetHandle(char* _msg)
 
 	if (!packetType.compare(MSG_PCKT))
 		printMsg(std::string(msg), true);
+
 	if(!packetType.compare(USER_INFO_PCKT))
 	{
-		std::vector<std::string> users;
+		usersOnline.clear();
+
 		std::string currentUserName;
 		for(int i = 0; i < msg.size(); i++)
 		{
 			if(msg[i] == ':')
 			{
-				users.push_back(currentUserName);
-				Form1->ListBox1->Items->Add(currentUserName.c_str());
+				usersOnline.push_back(currentUserName);
 				currentUserName = "";
+				continue;
 			}
 			currentUserName += msg[i];
 		}
+		showUserList();
+	}
 
+	if(!packetType.compare(PRIVATE_MSG))
+	{
+		printPrivateMsg(std::string(msg), true, "");
 	}
 }
 
@@ -80,10 +98,13 @@ std::string getTimeStr()
 	std::string sec    = std::to_string(localTime->tm_sec);
 
 	if(sec.size() == 1)
-	{
 		sec = "0" + sec;
-	}
 
+	if(min.size() == 1)
+		min = "0" + min;
+
+	if(hour.size() == 1)
+		hour = "0" + hour;
 
 	return ("[" + hour + ":" + min + ":"
 		+ sec + "]");
@@ -164,13 +185,22 @@ void disconnect()
 	sendMsg(DISCONNECT_PCKT, std::string(""));
 }
 
-void printMsg(std::string msg, bool flag)
+void printMsg(std::string msg, bool isClientMessage)
 {
 	std::string user = "(you)";
-	if (flag) {
+	if (isClientMessage) {
 		user = "";
 	}
 	Form1->ChatBox->Text += ("\r\n" + getTimeStr() + user + " " +  msg).c_str();
+}
+
+void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName)
+{
+	Form1->ChatBox->Text += ("\r\n-------PRIVATE-------");
+	if(!isClientMessage)
+			Form1->ChatBox->Text += ("\r\nCHAT WITH: " + recieverName).c_str();
+	printMsg(msg, isClientMessage);
+	Form1->ChatBox->Text += ("\r\n---------------------");
 }
 
 bool checkMsg(std::string msg, int size)
@@ -187,8 +217,19 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	const int MAX_SIZE = 1000;
 	if(checkMsg(stdMsg, MAX_SIZE))
 	{
-		sendMsg(MSG_PCKT, stdMsg);
-		printMsg(std::string(stdMsg), false);
+		std::string selectedUserName =  sysStrToStd(ListBox1->Items[ListBox1->ItemIndex].ToString());
+		if(ListBox1->ItemIndex == -1
+		|| ListBox1->ItemIndex == 0
+		|| selectedUserName.compare(userName))
+		{
+			sendMsg(MSG_PCKT, stdMsg);
+			printMsg(std::string(stdMsg), false);
+		} else
+		{
+			stdMsg = selectedUserName + ":" + stdMsg;
+			printPrivateMsg(std::string(stdMsg), false, selectedUserName);
+			sendMsg(PRIVATE_MSG, stdMsg);
+		}
 		MsgBox->Clear();
 	} else
 	{
@@ -199,6 +240,12 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
+	if(!connectToServer())
+	{
+		Application->MessageBox(_T("Server unavailable"), _T("Application error"));
+		exit(0);
+	}
+
 	Form1->ChatBox->Text = ("");
 	Form1->ChatBox->WantReturns = false;
 	Form1->ChatBox->WordWrap = false;
@@ -247,6 +294,13 @@ void __fastcall TForm1::MsgBoxChange(TObject *Sender)
 		Label1->Font->Color = clWhite;
 
 	Label1->Caption = AnsiString(msg.size()) + "/" +  AnsiString(MAX_MESSAGE_SIZE);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::FormShow(TObject *Sender)
+{
+    Form1->Enabled = false;
+	Form2->Show();
 }
 //---------------------------------------------------------------------------
 

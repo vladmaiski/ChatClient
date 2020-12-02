@@ -18,15 +18,13 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
 	try
 	{
+		Application->Initialize();
+		Application->MainFormOnTaskBar = true;
 		TStyleManager::TrySetStyle("Tablet Dark");
 		Application->CreateForm(__classid(TForm1), &Form1);
+		Application->CreateForm(__classid(TForm2), &Form2);
 		Application->CreateForm(__classid(TForm3), &Form3);
-		if(TForm2::Execute())
-		{
-			Application->Initialize();
-			Application->MainFormOnTaskBar = true;
-			Application->Run();
-		}
+		Application->Run();
 	}
 	catch (Exception &exception)
 	{

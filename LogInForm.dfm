@@ -1,6 +1,7 @@
 object Form2: TForm2
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Sign up'
   ClientHeight = 275
@@ -45,6 +46,7 @@ object Form2: TForm2
     Width = 121
     Height = 21
     TabOrder = 0
+    OnKeyPress = EnterKeyPress
   end
   object Edit2: TEdit
     Left = 192
@@ -52,6 +54,7 @@ object Form2: TForm2
     Width = 121
     Height = 21
     TabOrder = 1
+    OnKeyPress = EnterKeyPress
   end
   object Button1: TButton
     Left = 168
