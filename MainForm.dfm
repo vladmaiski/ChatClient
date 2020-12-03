@@ -35,12 +35,12 @@ object Form1: TForm1
     Transparent = True
     StyleElements = []
   end
-  object Label2: TLabel
-    Left = 424
-    Top = 5
-    Width = 64
+  object MsgToLabel: TLabel
+    Left = 24
+    Top = 277
+    Width = 28
     Height = 13
-    Caption = 'Users Online:'
+    Caption = 'to: All'
   end
   object Button1: TButton
     Left = 327
@@ -51,33 +51,40 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = Button1Click
   end
-  object MsgBox: TEdit
-    Left = 24
-    Top = 250
-    Width = 290
-    Height = 21
-    TabOrder = 1
-    TextHint = 'Type your message here...'
-    OnChange = MsgBoxChange
-    OnKeyPress = MsgBoxKeyPress
-  end
-  object ChatBox: TMemo
-    Left = 24
-    Top = 24
-    Width = 378
-    Height = 220
-    Lines.Strings = (
-      'ChatBox')
-    ReadOnly = True
-    ScrollBars = ssVertical
-    TabOrder = 2
-  end
   object ListBox1: TListBox
     Left = 424
     Top = 24
     Width = 130
     Height = 220
     ItemHeight = 13
+    TabOrder = 1
+  end
+  object MsgBox: TEdit
+    Left = 24
+    Top = 250
+    Width = 290
+    Height = 21
+    TabOrder = 2
+    TextHint = 'Type your message here...'
+    OnChange = MsgBoxChange
+    OnKeyPress = MsgBoxKeyPress
+  end
+  object ChatBox: TRichEdit
+    Left = 24
+    Top = 24
+    Width = 378
+    Height = 220
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWhite
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    HideScrollBars = False
+    Lines.Strings = (
+      'ChatBox')
+    ParentFont = False
+    ScrollBars = ssVertical
     TabOrder = 3
+    Zoom = 100
   end
 end

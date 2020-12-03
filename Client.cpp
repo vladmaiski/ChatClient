@@ -10,8 +10,8 @@
 //USEFORM("RegForm.cpp", Form3);
 #include <Vcl.Styles.hpp>
 #include <Vcl.Themes.hpp>
-USEFORM("RegForm.cpp", Form3);
 USEFORM("MainForm.cpp", Form1);
+USEFORM("RegForm.cpp", Form3);
 USEFORM("LogInForm.cpp", Form2);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)

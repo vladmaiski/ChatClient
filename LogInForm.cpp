@@ -34,16 +34,17 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 	recv(serverSock, msg, PACKET_TYPE_LENGHT, NULL);
 	std::string packetType(msg);
 
-	if (true)//!packetType.compare(LOGGED_PCKT))
+	if (!packetType.compare(LOGGED_PCKT))
 	{
 
 		Form1 -> Enabled = true;
 		Form2 -> Hide();
 
 		String name = Edit1->Text;
+
 		userName = sysStrToStd(name);
 
-		greetUser(name);
+		greetUser(userName);
 		createHandlerThreat();
 	}
 	else if(!packetType.compare(NOT_LOGGED_PCKT))
@@ -80,7 +81,7 @@ void __fastcall TForm2::FormCreate(TObject *Sender)
 
 void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	//Form1->Close();
+	Form1->Close();
 }
 void __fastcall TForm2::EnterKeyPress(TObject *Sender, System::WideChar &Key)
 {

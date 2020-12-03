@@ -12,6 +12,22 @@
 TForm1 *Form1;
 //---------------------------------------------------------------------------
 
+const char *MSG_PCKT = "/000/";
+const char *LOG_PCKT = "/111/";
+const char *DISCONNECT_PCKT = "/222/";
+const char *REG_PCKT = "/333/";
+const char* USER_REGISTRED_PCKT = "/444/";
+const char* USER_NOT_REGISTRED_PCKT = "/555/";
+const char* NOT_LOGGED_PCKT = "/666/";
+const char* LOGGED_PCKT = "/777/";
+const char* USER_INFO_PCKT = "/888/";
+const char* PRIVATE_MSG = "/999/";
+
+SOCKET serverSock;
+
+std::string userName;
+
+std::vector<std::string> usersOnline;
 
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
@@ -187,20 +203,23 @@ void disconnect()
 
 void printMsg(std::string msg, bool isClientMessage)
 {
+	std::string debug(msg);
 	std::string user = "(you)";
 	if (isClientMessage) {
 		user = "";
 	}
-	Form1->ChatBox->Text += ("\r\n" + getTimeStr() + user + " " +  msg).c_str();
+	Form1->ChatBox->Lines->Add((getTimeStr() + user + " " + msg).c_str());
 }
 
 void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName)
 {
-	Form1->ChatBox->Text += ("\r\n-------PRIVATE-------");
+	Form1->ChatBox->SelAttributes->Color = clGreen;
+	Form1->ChatBox->SelText = ("\r\n-------PRIVATE-------");
 	if(!isClientMessage)
 			Form1->ChatBox->Text += ("\r\nCHAT WITH: " + recieverName).c_str();
 	printMsg(msg, isClientMessage);
-	Form1->ChatBox->Text += ("\r\n---------------------");
+	Form1->ChatBox->Text += ("\r\n-------------------------");
+	Form1->ChatBox->SelAttributes->Color = clWhite;
 }
 
 bool checkMsg(std::string msg, int size)
@@ -217,10 +236,13 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	const int MAX_SIZE = 1000;
 	if(checkMsg(stdMsg, MAX_SIZE))
 	{
-		std::string selectedUserName =  sysStrToStd(ListBox1->Items[ListBox1->ItemIndex].ToString());
+		std::string selectedUserName =  sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex]);
+
+		std::string currentUser(userName);
+
 		if(ListBox1->ItemIndex == -1
 		|| ListBox1->ItemIndex == 0
-		|| selectedUserName.compare(userName))
+		|| !currentUser.compare(selectedUserName))
 		{
 			sendMsg(MSG_PCKT, stdMsg);
 			printMsg(std::string(stdMsg), false);
@@ -253,9 +275,9 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void greetUser(String name)
+void greetUser(std::string name)
 {
-	Form1->ChatBox->Text = ("Hello " + name).c_str();
+	Form1->ChatBox->Text += ("Hello " + name).c_str();
 }
 
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
@@ -303,4 +325,6 @@ void __fastcall TForm1::FormShow(TObject *Sender)
 	Form2->Show();
 }
 //---------------------------------------------------------------------------
+
+
 
