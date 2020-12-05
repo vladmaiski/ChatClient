@@ -27,6 +27,8 @@ SOCKET serverSock;
 
 std::string userName;
 
+char enKey;
+
 std::vector<std::string> usersOnline;
 
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -136,7 +138,7 @@ bool connectToServer()
     }
 
 	SOCKADDR_IN servAddr;
-    servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");//TODO
 	servAddr.sin_port = htons(1111);
     servAddr.sin_family = AF_INET;
 
@@ -213,13 +215,11 @@ void printMsg(std::string msg, bool isClientMessage)
 
 void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName)
 {
-	Form1->ChatBox->SelAttributes->Color = clGreen;
-	Form1->ChatBox->SelText = ("\r\n-------PRIVATE-------");
+	Form1->ChatBox->Text += ("\r\n-------PRIVATE-------");
 	if(!isClientMessage)
 			Form1->ChatBox->Text += ("\r\nCHAT WITH: " + recieverName).c_str();
 	printMsg(msg, isClientMessage);
 	Form1->ChatBox->Text += ("\r\n-------------------------");
-	Form1->ChatBox->SelAttributes->Color = clWhite;
 }
 
 bool checkMsg(std::string msg, int size)
@@ -236,22 +236,28 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	const int MAX_SIZE = 1000;
 	if(checkMsg(stdMsg, MAX_SIZE))
 	{
-		std::string selectedUserName =  sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex]);
 
 		std::string currentUser(userName);
 
-		if(ListBox1->ItemIndex == -1
-		|| ListBox1->ItemIndex == 0
-		|| !currentUser.compare(selectedUserName))
+		std::string selectedUserName;
+
+		if(ListBox1->ItemIndex > 0
+		&& (selectedUserName =
+		sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex])).compare(currentUser))
+		{
+			printPrivateMsg(std::string(stdMsg), false, selectedUserName);
+			stdMsg = selectedUserName + ":" + stdMsg;
+			//stdMsg = crypt(stdMsg);
+            char text = enKey;
+			sendMsg(PRIVATE_MSG, stdMsg);
+		} else
 		{
 			sendMsg(MSG_PCKT, stdMsg);
 			printMsg(std::string(stdMsg), false);
-		} else
-		{
-			stdMsg = selectedUserName + ":" + stdMsg;
-			printPrivateMsg(std::string(stdMsg), false, selectedUserName);
-			sendMsg(PRIVATE_MSG, stdMsg);
 		}
+
+		SendMessage(ChatBox->Handle, WM_VSCROLL, SB_BOTTOM, 0);
+
 		MsgBox->Clear();
 	} else
 	{
@@ -267,6 +273,10 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 		Application->MessageBox(_T("Server unavailable"), _T("Application error"));
 		exit(0);
 	}
+
+	char* msgKey = (char*)calloc(1, sizeof(char));
+	recv(serverSock, msgKey, PACKET_TYPE_LENGHT, NULL);
+	enKey = msgKey[0];
 
 	Form1->ChatBox->Text = ("");
 	Form1->ChatBox->WantReturns = false;
@@ -297,7 +307,14 @@ void __fastcall TForm1::MsgBoxKeyPress(TObject *Sender, System::WideChar &Key)
 }
 //---------------------------------------------------------------------------
 
-
+std::string crypt(std::string msg)
+{
+	std::string encryptedMsg;
+	for (int i = 0; i < msg.size(); i++) {
+		encryptedMsg += msg[i]^enKey;
+	}
+	return encryptedMsg;
+}
 
 void __fastcall TForm1::MsgBoxChange(TObject *Sender)
 {
@@ -328,3 +345,21 @@ void __fastcall TForm1::FormShow(TObject *Sender)
 
 
 
+void __fastcall TForm1::ListBox1Click(TObject *Sender)
+{
+	const std::string TO_TEXT("to: ");
+	const std::string TO_ALL("All");
+
+	std::string selectedUserName;
+
+	if(ListBox1->ItemIndex > 0
+	&& (selectedUserName =
+	sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex])).compare(userName))
+	{
+		MsgToLabel->Caption = (TO_TEXT + selectedUserName).c_str();
+	} else
+	{
+		MsgToLabel->Caption = (TO_TEXT + TO_ALL).c_str();
+	}
+}
+//---------------------------------------------------------------------------

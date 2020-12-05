@@ -39,6 +39,8 @@ extern SOCKET serverSock;
 
 extern std::string userName;
 
+extern char enKey;
+
 extern std::vector<std::string> usersOnline;
 
 void printMsg(std::string msg);
@@ -58,6 +60,7 @@ bool checkUserInput(std::string input, int size);
 void createHandlerThreat();
 void packetHandle(char* _msg);
 void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName);
+std::string crypt(std::string msg);
 
 
 class TForm1 : public TForm
@@ -69,12 +72,14 @@ __published:	// IDE-managed Components
 	TEdit *MsgBox;
 	TRichEdit *ChatBox;
 	TLabel *MsgToLabel;
+	TLabel *DevInf;
 	void __fastcall Button1Click(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall MsgBoxKeyPress(TObject *Sender, System::WideChar &Key);
 	void __fastcall MsgBoxChange(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
+	void __fastcall ListBox1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

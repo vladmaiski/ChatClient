@@ -40,7 +40,7 @@ object Form2: TForm2
     OnMouseMove = Label3MouseMove
     OnMouseLeave = Label3MouseLeave
   end
-  object Edit1: TEdit
+  object LoginField: TEdit
     Left = 192
     Top = 61
     Width = 121
@@ -48,7 +48,7 @@ object Form2: TForm2
     TabOrder = 0
     OnKeyPress = EnterKeyPress
   end
-  object Edit2: TEdit
+  object PasswordField: TEdit
     Left = 192
     Top = 109
     Width = 121

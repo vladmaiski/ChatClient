@@ -13,6 +13,8 @@ object Form3: TForm3
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
+  OnKeyPress = FormKeyPress
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -28,6 +30,15 @@ object Form3: TForm3
     Width = 46
     Height = 13
     Caption = 'Password'
+  end
+  object Label3: TLabel
+    Left = 312
+    Top = 107
+    Width = 25
+    Height = 13
+    Caption = 'show'
+    OnMouseMove = Label3MouseMove
+    OnMouseLeave = Label3MouseLeave
   end
   object Button1: TButton
     Left = 192

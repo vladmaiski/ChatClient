@@ -20,7 +20,13 @@ __published:	// IDE-managed Components
 	TButton *Button1;
 	TEdit *NicknameField;
 	TEdit *PasswordField;
+	TLabel *Label3;
 	void __fastcall Button1Click(TObject *Sender);
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall FormKeyPress(TObject *Sender, System::WideChar &Key);
+	void __fastcall Label3MouseMove(TObject *Sender, TShiftState Shift, int X, int Y);
+	void __fastcall Label3MouseLeave(TObject *Sender);
+
 private:	// User declarations
 public:		// User declarations
 	__fastcall TForm3(TComponent* Owner);

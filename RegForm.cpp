@@ -26,12 +26,12 @@ void __fastcall TForm3::Button1Click(TObject *Sender)
 			std::string res = sysStrToStd(NicknameField->Text) + ":" + sysStrToStd(PasswordField->Text);
 			sendMsg(REG_PCKT, res);
 			char* packetType = (char*)calloc(PACKET_TYPE_LENGHT, sizeof(char));
-			recv(serverSock, packetType, 5, NULL);
+			recv(serverSock, packetType, PACKET_TYPE_LENGHT, NULL);
 			std::string packet(packetType);
 			if(!packet.compare(USER_REGISTRED_PCKT))
 			{
-				ShowMessage("You register your account!)");
-				Form3->Hide();
+				ShowMessage("You register your account!");
+				Form3->Close();
 			} else
 			{
 				ShowMessage("Account with such name already exist");
@@ -51,4 +51,32 @@ void __fastcall TForm3::Button1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+
+void __fastcall TForm3::FormCreate(TObject *Sender)
+{
+	PasswordField ->PasswordChar = '*';
+}
+
+void __fastcall TForm3::FormKeyPress(TObject *Sender, System::WideChar &Key)
+{
+	if(Key == VK_RETURN)
+	{
+		Key = 0;
+		Form3->Button1Click(Sender);
+	}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Label3MouseMove(TObject *Sender, TShiftState Shift, int X,
+          int Y)
+{
+	PasswordField->PasswordChar = 0;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm3::Label3MouseLeave(TObject *Sender)
+{
+	PasswordField ->PasswordChar = '*';
+}
+//---------------------------------------------------------------------------
 

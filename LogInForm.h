@@ -17,8 +17,8 @@ class TForm2 : public TForm
 __published:	// IDE-managed Components
 	TLabel *Label1;
 	TLabel *Label2;
-	TEdit *Edit1;
-	TEdit *Edit2;
+	TEdit *LoginField;
+	TEdit *PasswordField;
 	TButton *Button1;
 	TLabel *Label3;
 	TButton *Button2;

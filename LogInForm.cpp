@@ -12,6 +12,9 @@
 #pragma resource "*.dfm"
 TForm2 *Form2;
 //---------------------------------------------------------------------------
+
+bool closeMain = true;
+
 __fastcall TForm2::TForm2(TComponent* Owner)
 	: TForm(Owner)
 {
@@ -20,14 +23,14 @@ __fastcall TForm2::TForm2(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TForm2::Button1Click(TObject *Sender)
 {
-	if(!checkUserInput(sysStrToStd(Edit1->Text),
-	 PASS_NICKNAME_LENGTH) && !checkUserInput(sysStrToStd(Edit2->Text), PASS_NICKNAME_LENGTH))
+	if(!checkUserInput(sysStrToStd(LoginField->Text),
+	 PASS_NICKNAME_LENGTH) && !checkUserInput(sysStrToStd(PasswordField->Text), PASS_NICKNAME_LENGTH))
 	{
 		ShowMessage("Incorrect input.");
 		return;
 	}
 
-	std::string toSend = sysStrToStd(Edit1->Text) + ":" + sysStrToStd(Edit2->Text);
+	std::string toSend = sysStrToStd(LoginField->Text) + ":" + sysStrToStd(PasswordField->Text);
 	sendMsg(LOG_PCKT, toSend.c_str());
 
 	char* msg = (char*)calloc(PACKET_TYPE_LENGHT + 1, sizeof(char));
@@ -38,9 +41,11 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 	{
 
 		Form1 -> Enabled = true;
-		Form2 -> Hide();
+		closeMain = false;
 
-		String name = Edit1->Text;
+		Form2 -> Close();
+
+		String name = LoginField->Text;
 
 		userName = sysStrToStd(name);
 
@@ -57,12 +62,12 @@ void __fastcall TForm2::Button1Click(TObject *Sender)
 void __fastcall TForm2::Label3MouseMove(TObject *Sender, TShiftState Shift, int X,
 		  int Y)
 {
-	Edit2->PasswordChar = 0;
+	PasswordField->PasswordChar = 0;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm2::Label3MouseLeave(TObject *Sender)
 {
-	Edit2 ->PasswordChar = '*';
+	PasswordField ->PasswordChar = '*';
 }
 //---------------------------------------------------------------------------
 
@@ -75,13 +80,16 @@ void __fastcall TForm2::Button2Click(TObject *Sender)
 
 void __fastcall TForm2::FormCreate(TObject *Sender)
 {
-	Edit2 ->PasswordChar = '*';
+	PasswordField ->PasswordChar = '*';
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	Form1->Close();
+	if(closeMain)
+	{
+		Form1->Close();
+	}
 }
 void __fastcall TForm2::EnterKeyPress(TObject *Sender, System::WideChar &Key)
 {
@@ -92,4 +100,3 @@ void __fastcall TForm2::EnterKeyPress(TObject *Sender, System::WideChar &Key)
 	}
 }
 //---------------------------------------------------------------------------
-

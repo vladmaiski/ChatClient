@@ -4,8 +4,8 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'ChitChat'
-  ClientHeight = 330
-  ClientWidth = 570
+  ClientHeight = 326
+  ClientWidth = 564
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWhite
@@ -42,6 +42,19 @@ object Form1: TForm1
     Height = 13
     Caption = 'to: All'
   end
+  object DevInf: TLabel
+    Left = 429
+    Top = 316
+    Width = 133
+    Height = 10
+    Caption = 'Developed by Vlad Maiski BSUIR 2020'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clGrayText
+    Font.Height = -8
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
   object Button1: TButton
     Left = 327
     Top = 250
@@ -58,6 +71,7 @@ object Form1: TForm1
     Height = 220
     ItemHeight = 13
     TabOrder = 1
+    OnClick = ListBox1Click
   end
   object MsgBox: TEdit
     Left = 24
@@ -83,6 +97,7 @@ object Form1: TForm1
     Lines.Strings = (
       'ChatBox')
     ParentFont = False
+    ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 3
     Zoom = 100
