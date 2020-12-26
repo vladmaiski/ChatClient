@@ -43,7 +43,7 @@ object Form1: TForm1
     Caption = 'to: All'
   end
   object DevInf: TLabel
-    Left = 429
+    Left = 423
     Top = 316
     Width = 133
     Height = 10
@@ -55,17 +55,17 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
   end
-  object Button1: TButton
+  object SendButton: TButton
     Left = 327
     Top = 250
     Width = 75
     Height = 25
     Caption = 'Send'
     TabOrder = 0
-    OnClick = Button1Click
+    OnClick = SendButtonClick
   end
   object ListBox1: TListBox
-    Left = 424
+    Left = 426
     Top = 24
     Width = 130
     Height = 220

@@ -19,10 +19,12 @@
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-const int PACKET_TYPE_LENGHT = 5;
-const int MAX_MESSAGE_SIZE = 1000;
-const int MAX_USER_INPUT_SIZE = 3000;
-
+extern const int PACKET_TYPE_LENGHT;
+extern const int MAX_MESSAGE_SIZE;
+extern const int MAX_USER_INPUT_SIZE;
+extern const char *SERVER_IP;
+extern const int SERVER_PORT;
+extern const int MAX_LINE_LEN;
 
 extern const char *MSG_PCKT;
 extern const char *LOG_PCKT;
@@ -38,8 +40,6 @@ extern const char* PRIVATE_MSG;
 extern SOCKET serverSock;
 
 extern std::string userName;
-
-extern char enKey;
 
 extern std::vector<std::string> usersOnline;
 
@@ -60,20 +60,20 @@ bool checkUserInput(std::string input, int size);
 void createHandlerThreat();
 void packetHandle(char* _msg);
 void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName);
-std::string crypt(std::string msg);
+std::vector<std::string>divByWords(std::string msg, const int MAX_LINE_LEN);
 
 
 class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
-	TButton *Button1;
+	TButton *SendButton;
 	TLabel *Label1;
 	TListBox *ListBox1;
 	TEdit *MsgBox;
 	TRichEdit *ChatBox;
 	TLabel *MsgToLabel;
 	TLabel *DevInf;
-	void __fastcall Button1Click(TObject *Sender);
+	void __fastcall SendButtonClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall MsgBoxKeyPress(TObject *Sender, System::WideChar &Key);

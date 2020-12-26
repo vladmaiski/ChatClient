@@ -7,6 +7,7 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
+#include <Vcl.ComCtrls.hpp>
 //---------------------------------------------------------------------------
 #include <iostream>
 #include <string>
@@ -23,22 +24,22 @@ const int MAX_MESSAGE_SIZE = 1000;
 const int MAX_USER_INPUT_SIZE = 3000;
 
 
-const char *MSG_PCKT = "/000/";
-const char *LOG_PCKT = "/111/";
-const char *DISCONNECT_PCKT = "/222/";
-const char *REG_PCKT = "/333/";
-const char* USER_REGISTRED_PCKT = "/444/";
-const char* USER_NOT_REGISTRED_PCKT = "/555/";
-const char* NOT_LOGGED_PCKT = "/666/";
-const char* LOGGED_PCKT = "/777/";
-const char* USER_INFO_PCKT = "/888/";
-const char* PRIVATE_MSG = "/999/";
+extern const char *MSG_PCKT;
+extern const char *LOG_PCKT;
+extern const char *DISCONNECT_PCKT;
+extern const char *REG_PCKT;
+extern const char* USER_REGISTRED_PCKT;
+extern const char* USER_NOT_REGISTRED_PCKT;
+extern const char* NOT_LOGGED_PCKT;
+extern const char* LOGGED_PCKT;
+extern const char* USER_INFO_PCKT;
+extern const char* PRIVATE_MSG;
 
-SOCKET serverSock = NULL;
+extern SOCKET serverSock;
 
-std::string userName;
+extern std::string userName;
 
-std::vector<std::string> usersOnline;
+extern std::vector<std::string> usersOnline;
 
 void printMsg(std::string msg);
 void printMsg(std::string msg);
@@ -49,7 +50,7 @@ std::string sysStrToStd(String str);
 bool connectToServer();
 DWORD WINAPI clientHandler(LPVOID lpParam);
 void printMsg(std::string msg, bool flag);
-void greetUser(String name);
+void greetUser(std::string name);
 void disconnect();
 std::string sysStrToStd(String str);
 bool checkInputSize(std::string input, int size);
@@ -63,17 +64,19 @@ class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
 	TButton *Button1;
-	TEdit *MsgBox;
-	TMemo *ChatBox;
 	TLabel *Label1;
 	TListBox *ListBox1;
-	TLabel *Label2;
+	TEdit *MsgBox;
+	TRichEdit *ChatBox;
+	TLabel *MsgToLabel;
+	TLabel *DevInf;
 	void __fastcall Button1Click(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall MsgBoxKeyPress(TObject *Sender, System::WideChar &Key);
 	void __fastcall MsgBoxChange(TObject *Sender);
 	void __fastcall FormShow(TObject *Sender);
+	void __fastcall ListBox1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

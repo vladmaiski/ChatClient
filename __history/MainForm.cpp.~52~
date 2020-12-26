@@ -12,6 +12,29 @@
 TForm1 *Form1;
 //---------------------------------------------------------------------------
 
+const int PACKET_TYPE_LENGHT = 5;
+const int MAX_MESSAGE_SIZE = 1000;
+const int MAX_USER_INPUT_SIZE = 3000;
+const char *SERVER_IP  = "127.0.0.1";
+const int SERVER_PORT  = 1111;
+const int MAX_LINE_LEN = 55;
+
+const char *MSG_PCKT = "/000/";
+const char *LOG_PCKT = "/111/";
+const char *DISCONNECT_PCKT = "/222/";
+const char *REG_PCKT = "/333/";
+const char* USER_REGISTRED_PCKT = "/444/";
+const char* USER_NOT_REGISTRED_PCKT = "/555/";
+const char* NOT_LOGGED_PCKT = "/666/";
+const char* LOGGED_PCKT = "/777/";
+const char* USER_INFO_PCKT = "/888/";
+const char* PRIVATE_MSG = "/999/";
+
+SOCKET serverSock;
+
+std::string userName;
+
+std::vector<std::string> usersOnline;
 
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
@@ -113,21 +136,22 @@ std::string getTimeStr()
 bool connectToServer()
 {
 	WSADATA wsaData;
-    WORD DLLVersion = MAKEWORD(2, 1);
-    if (WSAStartup(DLLVersion, &wsaData) != 0) {
+	WORD DLLVersion = MAKEWORD(2, 1);
+	if (WSAStartup(DLLVersion, &wsaData) != 0) {
 		std::cout << "Error" << std::endl;
 		exit(1);
     }
 
 	SOCKADDR_IN servAddr;
-    servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	servAddr.sin_port = htons(1111);
+	servAddr.sin_addr.s_addr = inet_addr(SERVER_IP);//TODO
+	servAddr.sin_port = htons(SERVER_PORT);
     servAddr.sin_family = AF_INET;
 
 	serverSock = socket(AF_INET, SOCK_STREAM, NULL);
 	if (connect(serverSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) != 0) {
 		return false;
 	}
+
 	return true;
 }
 
@@ -164,7 +188,6 @@ bool checkUserInput(std::string input, int size)
 		if (!isalpha(c) && !isdigit(c))
 			return false;
 	}
-
 	return true;
 }
 
@@ -187,11 +210,18 @@ void disconnect()
 
 void printMsg(std::string msg, bool isClientMessage)
 {
+	std::string debug(msg);
 	std::string user = "(you)";
 	if (isClientMessage) {
 		user = "";
 	}
-	Form1->ChatBox->Text += ("\r\n" + getTimeStr() + user + " " +  msg).c_str();
+	msg = getTimeStr() + user + " " + msg;
+	std::vector<std::string> words = divByWords(msg, MAX_LINE_LEN);
+	for(int i = 0; i < words.size(); i++)
+	{
+	   Form1->ChatBox->Lines->Add(words[i].c_str());
+	}
+
 }
 
 void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName)
@@ -200,7 +230,7 @@ void printPrivateMsg(std::string msg, bool isClientMessage, std::string reciever
 	if(!isClientMessage)
 			Form1->ChatBox->Text += ("\r\nCHAT WITH: " + recieverName).c_str();
 	printMsg(msg, isClientMessage);
-	Form1->ChatBox->Text += ("\r\n---------------------");
+	Form1->ChatBox->Text += ("\r\n-------------------------");
 }
 
 bool checkMsg(std::string msg, int size)
@@ -217,20 +247,27 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 	const int MAX_SIZE = 1000;
 	if(checkMsg(stdMsg, MAX_SIZE))
 	{
-		std::string selectedUserName =  sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex]);
-		int index = ListBox1->ItemIndex;
-		if(ListBox1->ItemIndex == -1
-		|| ListBox1->ItemIndex == 0
-		|| !selectedUserName.compare(userName))
+
+		std::string currentUser(userName);
+
+		std::string selectedUserName;
+
+
+		if(ListBox1->ItemIndex > 0
+		&& (selectedUserName =
+		sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex])).compare(currentUser))
+		{
+			printPrivateMsg(std::string(stdMsg), false, selectedUserName);
+			stdMsg = selectedUserName + ":" + stdMsg;
+			sendMsg(PRIVATE_MSG, stdMsg);
+		} else
 		{
 			sendMsg(MSG_PCKT, stdMsg);
 			printMsg(std::string(stdMsg), false);
-		} else
-		{
-			stdMsg = selectedUserName + ":" + stdMsg;
-			printPrivateMsg(std::string(stdMsg), false, selectedUserName);
-			sendMsg(PRIVATE_MSG, stdMsg);
 		}
+
+		SendMessage(ChatBox->Handle, WM_VSCROLL, SB_BOTTOM, 0);
+
 		MsgBox->Clear();
 	} else
 	{
@@ -254,7 +291,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void greetUser(String name)
+void greetUser(std::string name)
 {
 	Form1->ChatBox->Text += ("Hello " + name).c_str();
 }
@@ -266,6 +303,46 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 }
 //---------------------------------------------------------------------------
 
+std::vector<std::string>divByWords(std::string msg, const int MAX_LINE_LEN)
+{
+	int i = 0;
+	std::vector<std::string>msgToLines;
+
+	int offset = 0;
+	while (offset < msg.length()) {
+		int currLength = 0;
+		int lastSpace = 0;
+		while (currLength < MAX_LINE_LEN && i < msg.length()) {
+            if (msg[i] == ' ' || msg[i] == ',' || msg[i] == '.'
+                || msg[i] == ':' || msg[i] == ';' || msg[i] == '!'
+                || msg[i] == '?') {
+				lastSpace = i;
+			}
+			currLength++;
+			i++;
+        }
+		if (lastSpace && currLength == MAX_LINE_LEN && i != msg.length()) {
+			msgToLines.push_back(msg.substr(offset, lastSpace - offset + 1));
+			i = lastSpace + 1;
+			offset = lastSpace + 1;
+			lastSpace = 0;
+        }
+        else {
+			if (msg.length() - MAX_LINE_LEN > 0 && msg.length() - offset >
+				MAX_LINE_LEN)
+			{
+				msgToLines.push_back(msg.substr(offset, MAX_LINE_LEN));
+            }
+			else
+			{
+				msgToLines.push_back(msg.substr(offset, msg.length() - offset));
+			}
+			offset += MAX_LINE_LEN;
+		}
+    }
+	return msgToLines;
+}
+
 void __fastcall TForm1::MsgBoxKeyPress(TObject *Sender, System::WideChar &Key)
 {
 	if(Key == VK_RETURN)
@@ -275,8 +352,6 @@ void __fastcall TForm1::MsgBoxKeyPress(TObject *Sender, System::WideChar &Key)
 	}
 }
 //---------------------------------------------------------------------------
-
-
 
 void __fastcall TForm1::MsgBoxChange(TObject *Sender)
 {
@@ -305,3 +380,23 @@ void __fastcall TForm1::FormShow(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+
+
+void __fastcall TForm1::ListBox1Click(TObject *Sender)
+{
+	const std::string TO_TEXT("to: ");
+	const std::string TO_ALL("All");
+
+	std::string selectedUserName;
+
+	if(ListBox1->ItemIndex > 0
+	&& (selectedUserName =
+	sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex])).compare(userName))
+	{
+		MsgToLabel->Caption = (TO_TEXT + selectedUserName).c_str();
+	} else
+	{
+		MsgToLabel->Caption = (TO_TEXT + TO_ALL).c_str();
+	}
+}
+//---------------------------------------------------------------------------

@@ -12,6 +12,13 @@
 TForm1 *Form1;
 //---------------------------------------------------------------------------
 
+const int PACKET_TYPE_LENGHT = 5;
+const int MAX_MESSAGE_SIZE = 1000;
+const int MAX_USER_INPUT_SIZE = 3000;
+const char *SERVER_IP  = "127.0.0.1";
+const int SERVER_PORT  = 1111;
+const int MAX_LINE_LEN = 55;
+
 const char *MSG_PCKT = "/000/";
 const char *LOG_PCKT = "/111/";
 const char *DISCONNECT_PCKT = "/222/";
@@ -26,8 +33,6 @@ const char* PRIVATE_MSG = "/999/";
 SOCKET serverSock;
 
 std::string userName;
-
-char enKey;
 
 std::vector<std::string> usersOnline;
 
@@ -131,21 +136,22 @@ std::string getTimeStr()
 bool connectToServer()
 {
 	WSADATA wsaData;
-    WORD DLLVersion = MAKEWORD(2, 1);
-    if (WSAStartup(DLLVersion, &wsaData) != 0) {
+	WORD DLLVersion = MAKEWORD(2, 1);
+	if (WSAStartup(DLLVersion, &wsaData) != 0) {
 		std::cout << "Error" << std::endl;
 		exit(1);
     }
 
 	SOCKADDR_IN servAddr;
-	servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");//TODO
-	servAddr.sin_port = htons(1111);
+	servAddr.sin_addr.s_addr = inet_addr(SERVER_IP);//TODO
+	servAddr.sin_port = htons(SERVER_PORT);
     servAddr.sin_family = AF_INET;
 
 	serverSock = socket(AF_INET, SOCK_STREAM, NULL);
 	if (connect(serverSock, (SOCKADDR*)&servAddr, sizeof(servAddr)) != 0) {
 		return false;
 	}
+
 	return true;
 }
 
@@ -182,7 +188,6 @@ bool checkUserInput(std::string input, int size)
 		if (!isalpha(c) && !isdigit(c))
 			return false;
 	}
-
 	return true;
 }
 
@@ -210,7 +215,13 @@ void printMsg(std::string msg, bool isClientMessage)
 	if (isClientMessage) {
 		user = "";
 	}
-	Form1->ChatBox->Lines->Add((getTimeStr() + user + " " + msg).c_str());
+	msg = getTimeStr() + user + " " + msg;
+	std::vector<std::string> words = divByWords(msg, MAX_LINE_LEN);
+	for(int i = 0; i < words.size(); i++)
+	{
+	   Form1->ChatBox->Lines->Add(words[i].c_str());
+	}
+
 }
 
 void printPrivateMsg(std::string msg, bool isClientMessage, std::string recieverName)
@@ -229,7 +240,7 @@ bool checkMsg(std::string msg, int size)
 	return true;
 }
 
-void __fastcall TForm1::Button1Click(TObject *Sender)
+void __fastcall TForm1::SendButtonClick(TObject *Sender)
 {
 	String msg = MsgBox->Text.Trim();
 	std::string stdMsg = sysStrToStd(msg);
@@ -241,14 +252,13 @@ void __fastcall TForm1::Button1Click(TObject *Sender)
 
 		std::string selectedUserName;
 
+
 		if(ListBox1->ItemIndex > 0
 		&& (selectedUserName =
 		sysStrToStd(ListBox1->Items->Strings[ListBox1->ItemIndex])).compare(currentUser))
 		{
 			printPrivateMsg(std::string(stdMsg), false, selectedUserName);
 			stdMsg = selectedUserName + ":" + stdMsg;
-			//stdMsg = crypt(stdMsg);
-            char text = enKey;
 			sendMsg(PRIVATE_MSG, stdMsg);
 		} else
 		{
@@ -274,10 +284,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 		exit(0);
 	}
 
-	char* msgKey = (char*)calloc(1, sizeof(char));
-	recv(serverSock, msgKey, PACKET_TYPE_LENGHT, NULL);
-	enKey = msgKey[0];
-
 	Form1->ChatBox->Text = ("");
 	Form1->ChatBox->WantReturns = false;
 	Form1->ChatBox->WordWrap = false;
@@ -297,24 +303,55 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 }
 //---------------------------------------------------------------------------
 
+std::vector<std::string>divByWords(std::string msg, const int MAX_LINE_LEN)
+{
+	int i = 0;
+	std::vector<std::string>msgToLines;
+
+	int offset = 0;
+	while (offset < msg.length()) {
+		int currLength = 0;
+		int lastSpace = 0;
+		while (currLength < MAX_LINE_LEN && i < msg.length()) {
+            if (msg[i] == ' ' || msg[i] == ',' || msg[i] == '.'
+                || msg[i] == ':' || msg[i] == ';' || msg[i] == '!'
+                || msg[i] == '?') {
+				lastSpace = i;
+			}
+			currLength++;
+			i++;
+        }
+		if (lastSpace && currLength == MAX_LINE_LEN && i != msg.length()) {
+			msgToLines.push_back(msg.substr(offset, lastSpace - offset + 1));
+			i = lastSpace + 1;
+			offset = lastSpace + 1;
+			lastSpace = 0;
+        }
+        else {
+			if (msg.length() - MAX_LINE_LEN > 0 && msg.length() - offset >
+				MAX_LINE_LEN)
+			{
+				msgToLines.push_back(msg.substr(offset, MAX_LINE_LEN));
+            }
+			else
+			{
+				msgToLines.push_back(msg.substr(offset, msg.length() - offset));
+			}
+			offset += MAX_LINE_LEN;
+		}
+    }
+	return msgToLines;
+}
+
 void __fastcall TForm1::MsgBoxKeyPress(TObject *Sender, System::WideChar &Key)
 {
 	if(Key == VK_RETURN)
 	{
 		Key = 0;
-		Form1->Button1Click(Sender);
+		Form1->SendButtonClick(Sender);
 	}
 }
 //---------------------------------------------------------------------------
-
-std::string crypt(std::string msg)
-{
-	std::string encryptedMsg;
-	for (int i = 0; i < msg.size(); i++) {
-		encryptedMsg += msg[i]^enKey;
-	}
-	return encryptedMsg;
-}
 
 void __fastcall TForm1::MsgBoxChange(TObject *Sender)
 {
